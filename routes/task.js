@@ -1,6 +1,7 @@
 const express = require("express");
 const Task = require("../models/Task");
 const authenticateUser = require("../middlewares/authenticateUser");
+const { literal } = require("sequelize");
 
 const router = express.Router();
 
@@ -41,8 +42,37 @@ router.post("/createtask", authenticateUser, async (req, res) => {
   }
 });
 
-router.get("/priority/:priority", async (req, res) => {
+router.get("/alltasks", authenticateUser, async (req, res) => {
   try {
+    const user_id = req.user_id;
+
+    const findUserTasks = await Task.findAll({ where: { user_id: user_id } });
+
+    if (!findUserTasks) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "User not Found",
+      });
+    }
+
+    return res.status(200).json({
+      status: "Success",
+      message: "User Task fetched successfully",
+      tasks: findUserTasks,
+    });
+  } catch (error) {
+    console.error("Something is wrong", error);
+    return res.status(500).json({
+      status: "Failed",
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.get("/priority/:priority", authenticateUser, async (req, res) => {
+  try {
+    const user_id = req.user_id;
+
     const { priority } = req.params;
 
     if (!priority) {
@@ -53,7 +83,7 @@ router.get("/priority/:priority", async (req, res) => {
     }
 
     const findTaskPriority = await Task.findAll({
-      where: { priority: priority },
+      where: { user_id: user_id, priority: priority },
     });
 
     if (findTaskPriority.length === 0) {
@@ -77,8 +107,10 @@ router.get("/priority/:priority", async (req, res) => {
   }
 });
 
-router.get("/status/:taskstatus", async (req, res) => {
+router.get("/status/:taskstatus", authenticateUser, async (req, res) => {
   try {
+    const user_id = req.user_id;
+
     const { taskstatus } = req.params;
     if (!taskstatus) {
       return res.status(400).json({
@@ -87,7 +119,7 @@ router.get("/status/:taskstatus", async (req, res) => {
       });
     }
     const findTaskStatus = await Task.findAll({
-      where: { status: taskstatus },
+      where: { user_id: user_id, status: taskstatus },
     });
 
     if (findTaskStatus.length === 0) {
@@ -197,9 +229,10 @@ router.put("/updatetaskstatus", async (req, res) => {
   }
 });
 
-router.delete("/deletetask", async (req, res) => {
+router.put("/deletetask", async (req, res) => {
   try {
     const { id } = req.body;
+
     if (!id) {
       return res.status(400).json({
         status: "Failed",
@@ -208,18 +241,22 @@ router.delete("/deletetask", async (req, res) => {
     }
 
     const findTask = await Task.findByPk(id);
+
     if (!findTask) {
-      return res.status(400).json({
+      return res.status(404).json({
         status: "Failed",
         message: "No Task found",
       });
     }
 
-    await Task.destroy({ where: { id: id } });
+    await Task.update(
+      { deleted_at: literal("CURRENT_TIMESTAMP") },
+      { where: { id: id } }
+    );
 
     return res.status(200).json({
       status: "Success",
-      message: "Task is deleted",
+      message: "Task is soft deleted",
     });
   } catch (error) {
     console.error("Something is wrong", error);
@@ -229,6 +266,5 @@ router.delete("/deletetask", async (req, res) => {
     });
   }
 });
-
 
 module.exports = router;

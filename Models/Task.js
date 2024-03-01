@@ -19,7 +19,7 @@ const Task = database.define(
       allowNull: false,
     },
     due_date: {
-      type: DataTypes.STRING,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     priority: {

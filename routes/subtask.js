@@ -1,5 +1,6 @@
 const express = require("express");
 const SubTask = require("../models/SubTask");
+const { literal } = require("sequelize");
 
 const router = express.Router();
 
@@ -108,9 +109,10 @@ router.put("/updatesubtask", async (req, res) => {
   }
 });
 
-router.delete("/deletesubtask", async (req, res) => {
+router.put("/deletesubtask", async (req, res) => {
   try {
     const { id } = req.body;
+
     if (!id) {
       return res.status(400).json({
         status: "Failed",
@@ -119,18 +121,22 @@ router.delete("/deletesubtask", async (req, res) => {
     }
 
     const findSubTask = await SubTask.findByPk(id);
+
     if (!findSubTask) {
-      return res.status(400).json({
+      return res.status(404).json({
         status: "Failed",
         message: "No Sub Task found",
       });
     }
 
-    await SubTask.destroy({ where: { id: id } });
+    await SubTask.update(
+      { deleted_at: literal("CURRENT_TIMESTAMP") },
+      { where: { id: id } }
+    );
 
     return res.status(200).json({
       status: "Success",
-      message: "Sub Task is deleted",
+      message: "Task is soft deleted",
     });
   } catch (error) {
     console.error("Something is wrong", error);
@@ -140,4 +146,5 @@ router.delete("/deletesubtask", async (req, res) => {
     });
   }
 });
+
 module.exports = router;
