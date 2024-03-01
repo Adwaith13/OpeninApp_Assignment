@@ -12,6 +12,7 @@ const database = new Sequelize("postgres", "postgres", "adwaith1310", {
 const connectToDatabase = async () => {
   try {
     await database.authenticate();
+    await database.sync({ alter: true });
     console.log("Database is Connected");
   } catch (error) {
     throw new Error("Database did not Connect", error);

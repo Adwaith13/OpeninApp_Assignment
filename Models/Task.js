@@ -17,16 +17,31 @@ const Task = database.define("Task", {
     allowNull: false,
   },
   due_date: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  status: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   priority: {
     type: DataTypes.INTEGER,
     allowNull: false,
+  },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  deleted_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
   },
 });
 

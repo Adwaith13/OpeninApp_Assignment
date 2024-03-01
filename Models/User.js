@@ -2,13 +2,13 @@ const { DataTypes } = require("sequelize");
 const { database } = require("./main");
 
 const User = database.define("User", {
-  id: {
+  user_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
   phone_number: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false,
   },
   priority: {
