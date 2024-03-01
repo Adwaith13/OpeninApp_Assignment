@@ -65,7 +65,7 @@ router.get("/subtask/:taskID", async (req, res) => {
   }
 });
 
-router.put("/updatestatus", async (req, res) => {
+router.put("/updatesubtask", async (req, res) => {
   try {
     const { id, status } = req.body;
 
@@ -126,12 +126,11 @@ router.delete("/deletesubtask", async (req, res) => {
       });
     }
 
-    const findAllSubTasks = await SubTask.findAll();
+    await SubTask.destroy({ where: { id: id } });
 
     return res.status(200).json({
       status: "Success",
       message: "Sub Task is deleted",
-      allSubTasks: findAllSubTasks,
     });
   } catch (error) {
     console.error("Something is wrong", error);

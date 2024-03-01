@@ -91,7 +91,7 @@ router.get("/status/:taskstatus", async (req, res) => {
     });
 
     if (findTaskStatus.length === 0) {
-      return res.status(401).json({
+      return res.status(400).json({
         status: "Failed",
         message: `No status found with task status ${taskstatus}`,
       });
@@ -110,5 +110,125 @@ router.get("/status/:taskstatus", async (req, res) => {
     });
   }
 });
+
+router.put("/updateduedate", async (req, res) => {
+  try {
+    const { id, due_date } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Id is required",
+      });
+    }
+
+    if (!due_date) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Task status is required",
+      });
+    }
+
+    const findTask = await Task.findByPk(id);
+    if (!findTask) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Task not found",
+      });
+    }
+
+    await Task.update({ due_date: due_date }, { where: { id: id } });
+
+    const updatedTask = await Task.findByPk(id);
+    return res.status(200).json({
+      status: "Success",
+      message: "SubTask status updated successfully",
+      updatedSubTask: updatedTask,
+    });
+  } catch (error) {
+    console.error("Something is wrong", error);
+    return res.status(500).json({
+      status: "Failed",
+      message: "Internal server error",
+    });
+  }
+});
+
+router.put("/updatetaskstatus", async (req, res) => {
+  try {
+    const { id, status } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Id is required",
+      });
+    }
+
+    if (!status) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Task status is required",
+      });
+    }
+
+    const findTask = await Task.findByPk(id);
+    if (!findTask) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Task not found",
+      });
+    }
+
+    await Task.update({ status: status }, { where: { id: id } });
+
+    const updatedTask = await Task.findByPk(id);
+    return res.status(200).json({
+      status: "Success",
+      message: "SubTask status updated successfully",
+      updatedSubTask: updatedTask,
+    });
+  } catch (error) {
+    console.error("Something is wrong", error);
+    return res.status(500).json({
+      status: "Failed",
+      message: "Internal server error",
+    });
+  }
+});
+
+router.delete("/deletetask", async (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Task Id is required",
+      });
+    }
+
+    const findTask = await Task.findByPk(id);
+    if (!findTask) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "No Task found",
+      });
+    }
+
+    await Task.destroy({ where: { id: id } });
+
+    return res.status(200).json({
+      status: "Success",
+      message: "Task is deleted",
+    });
+  } catch (error) {
+    console.error("Something is wrong", error);
+    return res.status(500).json({
+      status: "Failed",
+      message: "Internal Server Error",
+    });
+  }
+});
+
 
 module.exports = router;
