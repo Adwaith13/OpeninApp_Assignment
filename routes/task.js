@@ -41,4 +41,74 @@ router.post("/createtask", authenticateUser, async (req, res) => {
   }
 });
 
+router.get("/priority/:priority", async (req, res) => {
+  try {
+    const { priority } = req.params;
+
+    if (!priority) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Priority is required",
+      });
+    }
+
+    const findTaskPriority = await Task.findAll({
+      where: { priority: priority },
+    });
+
+    if (findTaskPriority.length === 0) {
+      return res.status(400).json({
+        status: "Failed",
+        message: `No task found with priority ${priority} `,
+      });
+    }
+
+    return res.status(200).json({
+      status: "Success",
+      message: `Task with priority ${priority} found successfully`,
+      task: findTaskPriority,
+    });
+  } catch (error) {
+    console.error("Something is wrong", error);
+    return res.status(500).json({
+      status: "Failed",
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.get("/status/:taskstatus", async (req, res) => {
+  try {
+    const { taskstatus } = req.params;
+    if (!taskstatus) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Task Status is required",
+      });
+    }
+    const findTaskStatus = await Task.findAll({
+      where: { status: taskstatus },
+    });
+
+    if (findTaskStatus.length === 0) {
+      return res.status(401).json({
+        status: "Failed",
+        message: `No status found with task status ${taskstatus}`,
+      });
+    }
+
+    return res.status(200).json({
+      status: "Success",
+      message: "Task Status found",
+      task: findTaskStatus,
+    });
+  } catch (error) {
+    console.error("Something is wrong", error);
+    return res.status(500).json({
+      status: "Failed",
+      message: "Internal Server Error",
+    });
+  }
+});
+
 module.exports = router;
